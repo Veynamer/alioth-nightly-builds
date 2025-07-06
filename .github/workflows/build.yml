@@ -30,7 +30,7 @@ jobs:
         run: |
           echo -e '\n\n' | pmbootstrap init || true
           cd ~/.local/var/pmbootstrap/cache_git/pmaports
-          git remote add mainlining https://github.com/Veynamer/pmaports.git
+          git remote add Veynamer https://github.com/Veynamer/pmaports.git
           git fetch Veynamer master
           git reset --hard Veynamer/master
 
