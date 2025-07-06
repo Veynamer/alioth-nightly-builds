@@ -57,7 +57,7 @@ jobs:
 
       - name: Build qcom-msm89x7
         run: |
-          cp xiaomi-alioth.cfg ~/.config/pmbootstrap_v3.cfg
+          cp qcom-msm89x7.cfg ~/.config/pmbootstrap_v3.cfg
           pmbootstrap install --password 147147
           pmbootstrap export
           cp /tmp/postmarketOS-export/lk2nd.img out/lk2nd-qcom-msm89x7.img
