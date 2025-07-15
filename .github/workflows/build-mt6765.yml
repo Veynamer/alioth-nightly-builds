@@ -60,7 +60,7 @@ jobs:
           cp xiaomi-cactus.cfg ~/.config/pmbootstrap_v3.cfg
           pmbootstrap install --password 147147
           pmbootstrap export
-		  cp /tmp/postmarketOS-export/dtbo.img out/dtbo-xiaomi-cactus.img
+          cp /tmp/postmarketOS-export/dtbo.img out/dtbo-xiaomi-cactus.img
           cp /tmp/postmarketOS-export/boot.img out/boot-xiaomi-cactus.img
           cp /tmp/postmarketOS-export/xiaomi-cactus.img out/rootfs-xiaomi-cactus.img
 
