@@ -1,0 +1,72 @@
+name: Build images MT6765
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 5' # Run every friday at midnight
+
+env:
+  KERNEL_BRANCH: mt6765-next
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out build configurations
+        uses: actions/checkout@v4
+
+      - name: Substitute placeholders in configs
+        run: |
+          find . -type f -name "*.cfg" -exec sed -i "s|HOME|$(echo $HOME)|;s|NPROC|$(nproc)|" {} +
+
+      - name: Install pmbootstrap from git
+        run: |
+          git clone --depth=1 https://gitlab.postmarketos.org/postmarketOS/pmbootstrap.git
+          mkdir -p ~/.local/bin
+          ln -s "$PWD/pmbootstrap/pmbootstrap.py" ~/.local/bin/pmbootstrap
+          pmbootstrap --version
+
+      - name: Set up pmaports
+        run: |
+          echo -e '\n\n' | pmbootstrap init || true
+          cd ~/.local/var/pmbootstrap/cache_git/pmaports
+          git remote add Veynamer https://github.com/Veynamer/pmaports.git
+          git fetch Veynamer master
+          git reset --hard Veynamer/master
+
+      - name: Clone kernel sources
+        run: |
+          git clone https://github.com/Veynamer/linux-mt6765.git --single-branch --branch mt6765-next --depth 1 ./linux
+
+      - name: Choose any MT6765 device in pmbootstrap to build kernel
+        run: |
+          cp xiaomi-cactus.cfg ~/.config/pmbootstrap_v3.cfg
+
+      - name: Compile kernel with envkernel
+        run: |
+          cd linux
+          shopt -s expand_aliases
+          source ../pmbootstrap/helpers/envkernel.sh
+          make defconfig mt6765.config
+          make -j$(nproc)
+          pmbootstrap build --envkernel linux-postmarketos-mediatek-mt6765
+
+      - name: Create artifact directory
+        run: |
+          mkdir out
+
+      - name: Build xiaomi-cactus
+        run: |
+          cp xiaomi-cactus.cfg ~/.config/pmbootstrap_v3.cfg
+          pmbootstrap install --password 147147
+          pmbootstrap export
+		  cp /tmp/postmarketOS-export/dtbo.img out/dtbo-xiaomi-cactus.img
+          cp /tmp/postmarketOS-export/boot.img out/boot-xiaomi-cactus.img
+          cp /tmp/postmarketOS-export/xiaomi-cactus.img out/rootfs-xiaomi-cactus.img
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: xiaomi-cactus
+          path: out/*-cactus.img*
+          retention-days: 30

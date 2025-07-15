@@ -1,4 +1,4 @@
-name: Build images
+name: Build images msm89x7
 on:
   push:
   workflow_dispatch:

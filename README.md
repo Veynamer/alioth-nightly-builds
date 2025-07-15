@@ -1,6 +1,6 @@
-# Nightly SM8250 PostmarketOS Builds
+# Nightly personal PostmarketOS Builds
 
-This repository contains workflows and configurations to automatically build PostmarketOS edge images for SM8250 devices supported by our mainline kernel fork. These images are intended for testing purposes only and should make testing more accessible to people without the capabilities to compile the kernel from source.
+This repository contains workflows and configurations to automatically build PostmarketOS edge images for personal devices supported by our mainline kernel fork. These images are intended for testing purposes only and should make testing more accessible to people without the capabilities to compile the kernel from source.
 
 ## Image Information
 
@@ -10,4 +10,4 @@ The default user is called `user`, the password is `147147`, just like on offici
 
 ## Downloading
 
-Head to the [Actions tab](https://github.com/N1kroks/alioth-nightly-builds/actions), select the most recent successful run and download the artifact for your device. Extract the Zip, de-compress the rootfs and you're ready to flash!
+Head to the [Actions tab](https://github.com/Veynamer/alioth-nightly-builds/actions), select the most recent successful run and download the artifact for your device. Extract the Zip, de-compress the rootfs and you're ready to flash!
