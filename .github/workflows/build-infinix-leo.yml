@@ -1,0 +1,71 @@
+name: Build images Infinix-leo
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 5' # Run every friday at midnight
+
+env:
+  KERNEL_BRANCH: ums512
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out build configurations
+        uses: actions/checkout@v4
+
+      - name: Substitute placeholders in configs
+        run: |
+          find . -type f -name "*.cfg" -exec sed -i "s|HOME|$(echo $HOME)|;s|NPROC|$(nproc)|" {} +
+
+      - name: Install pmbootstrap from git
+        run: |
+          git clone --depth=1 https://gitlab.postmarketos.org/postmarketOS/pmbootstrap.git
+          mkdir -p ~/.local/bin
+          ln -s "$PWD/pmbootstrap/pmbootstrap.py" ~/.local/bin/pmbootstrap
+          pmbootstrap --version
+
+      - name: Set up pmaports
+        run: |
+          echo -e '\n\n' | pmbootstrap init || true
+          cd ~/.local/var/pmbootstrap/cache_git/pmaports
+          git remote add Veynamer https://github.com/Veynamer/pmaports.git
+          git fetch Veynamer master
+          git reset --hard Veynamer/master
+
+      - name: Clone kernel sources
+        run: |
+          git clone https://github.com/Veynamer/mainline-unisoc.git --single-branch --branch ums512 --depth 1 ./linux
+
+      - name: Choose any UMS512 device in pmbootstrap to build kernel
+        run: |
+          cp infinix-leo.cfg ~/.config/pmbootstrap_v3.cfg
+
+      - name: Compile kernel with envkernel
+        run: |
+          cd linux
+          shopt -s expand_aliases
+          source ../pmbootstrap/helpers/envkernel.sh
+          make defconfig ums512_defconfig
+          make -j$(nproc)
+          pmbootstrap build --envkernel linux-postmarketos-unisoc-ums512
+
+      - name: Create artifact directory
+        run: |
+          mkdir out
+
+      - name: Build infinix-leo
+        run: |
+          cp infinix-leo.cfg ~/.config/pmbootstrap_v3.cfg
+          pmbootstrap install --password 147147
+          pmbootstrap export
+          cp /tmp/postmarketOS-export/boot.img out/boot-infinix-leo.img
+          cp /tmp/postmarketOS-export/infinix-leo.img out/rootfs-infinix-leo.img
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: xiaomi-cactus
+          path: out/*-leo.img*
+          retention-days: 30
