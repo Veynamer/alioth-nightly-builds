@@ -47,7 +47,7 @@ jobs:
           cd linux
           shopt -s expand_aliases
           source ../pmbootstrap/helpers/envkernel.sh
-          make defconfig ums512_defconfig
+          make defconfig ums512-uboot_defconfig
           make -j$(nproc)
           pmbootstrap build --envkernel linux-postmarketos-unisoc-ums512
 
@@ -66,6 +66,6 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: xiaomi-cactus
+          name: infinix-leo
           path: out/*-leo.img*
           retention-days: 30
